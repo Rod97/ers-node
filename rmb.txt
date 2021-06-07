@@ -1,4 +1,4 @@
-const rmb = [{
+[{
         id: 1,
         amount: 200.0,
         reason: 'travel',
@@ -30,4 +30,3 @@ const rmb = [{
         status: 'pending'
     }
 ]
-module.exports = rmb
