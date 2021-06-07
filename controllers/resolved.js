@@ -1,7 +1,8 @@
 var where = require("lodash.where")
-var fs = require('fs');
+var fs = require('fs')
+var rmb = require('../rmb')
 
-var json = JSON.parse(fs.readFileSync('../rmb.txt', 'utf8'));
+var json = JSON.stringify(rmb)
 var resolved = where(json, {status: 'resolved'})
 
 module.exports = resolved

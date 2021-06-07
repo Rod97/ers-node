@@ -10,11 +10,13 @@ const manager = require('./routes/manager')
 app.use(express.static('./public'))
 
 app.get('/view/pending', (req, res) => {
-    res.write(pending)
+    res.write(pending.join())
+    res.end()
 })
 
 app.get('/view/resolved', (req, res) => {
-    res.write(resolved)
+    res.write(resolved.join())
+    res.end()
 })
 
 app.listen(5051, () => {
