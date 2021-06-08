@@ -1,17 +1,14 @@
-const { MongoClient } = require('mongodb');
-
-async function main() {
-    const uri = 'mongodb+srv://rod:<FDyx3AW6XMXan#y>@ers-data.g2qxm.mongodb.net/ers-database?retryWrites=true&w=majority';
-    const client = new MongoClient(uri);
-
+const post = async (client, newRequest) => {
     try {
-        await client.connect();
+        await client.connect()
+        const result = await client.db("test").collection("testCollection").insertOne(newRequest);
 
-        await listDatabases(client);
+        console.log('New request TEST: ' + result);
     } catch (e) {
         console.log(e);
-    }finally{
+    } finally {
         await client.close();
     }
-
 }
+
+module.exports = post;
