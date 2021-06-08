@@ -12,8 +12,8 @@ const getAllPending = async (client) => {
         }
     } catch (e) {
         console.log("Error\n" + e);
-    } 
-    finally{
+    }
+    finally {
         client.close();
     }
 }
@@ -35,11 +35,8 @@ const getAllResolved = async (client) => {
         }
     } catch (e) {
         console.log("Error\n" + e);
-    } 
+    }
 }
-
-
-
 
 const getAllByEmployeePending = async (client, employee) => {
     try {
@@ -55,8 +52,8 @@ const getAllByEmployeePending = async (client, employee) => {
         }
     } catch (e) {
         console.log("Error\n" + e);
-    } 
-    finally{
+    }
+    finally {
         client.close();
     }
 }
@@ -77,12 +74,54 @@ const getAllByEmployeeResolved = async (client, employee) => {
         }
     } catch (e) {
         console.log("Error\n" + e);
-    } 
+    }
 }
+
+const getAllRequestsByEmployee = async (client, employee) => {
+    try {
+        await client.connect()
+        const resultsPending = await client.db("requests").collection("pendingRequests")
+            .find({ employee_id: employee }).toArray();
+        const resultsRejected = await client.db("requests").collection("rejectedRequests")
+            .find({ employee_id: employee }).toArray();
+        const resultsAccepted = await client.db("requests").collection("acceptedRequests")
+            .find({ employee_id: employee }).toArray();
+        const resultsResolved = resultsAccepted.concat(resultsRejected);
+        const result = resultsResolved.concat(resultsPending);
+        if (result) {
+            console.log(result);
+            return result;
+        } else {
+            console.log(`No Reimbursement Requests from Employee: ${employee}`)
+        }
+    } catch (e) {
+        console.log("Error\n" + e);
+    }
+}
+
+ const getAllEmployees = async (client) => {
+    try{
+        await client.connect()
+        const result = await client.db("employee").collection("employee").find().toArray();
+        console.log(result);
+        return result;
+        if (result.length !== 0) {
+            console.log(result);
+            return result;
+        } else {
+            console.log(`No pending requests`)
+        }
+    } catch (e) {
+        console.log("Error\n" + e);
+    }
+
+ }
 
 module.exports = {
     getAllPending,
-    getAllResolved
+    getAllResolved,
+    getAllRequestsByEmployee,
+    getAllEmployees
     // updateREquestStatus
 };
 // const post = async (client, newRequest) => {

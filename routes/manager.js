@@ -7,7 +7,9 @@ const {
     getReimbursementById,
     getReimbursementByStatus,
     getAllPending,
-    getAllResolved
+    getAllResolved,
+    getAllRequestsByEmployee,
+    getAllEmployees
 } = require('../controllers/manager')
 
 router.route('/').get(getAllReimbursements)
@@ -15,6 +17,8 @@ router.route('/').get(getAllReimbursements)
 router.route('/requests').get(getReimbursementByStatus)
 router.route('/requests/pending/').get(getAllPending)
 router.route('/requests/resolved/').get(getAllResolved)
+router.route('/requests/employee/:id').get(getAllRequestsByEmployee)
+router.route('/employees/').get(getAllEmployees)
 
 
 module.exports = router

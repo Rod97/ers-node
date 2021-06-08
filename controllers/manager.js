@@ -20,6 +20,24 @@ const getAllResolved = (req, res) => {
         }
     })
 }
+const getAllRequestsByEmployee = (req,res) => {
+    const id = mongo.ObjectID(req.params.id);
+    service.getAllRequestsByEmployee(client, id).then((result) => {
+        if (result) { res.status(200).json({ success: true, data: result }) }
+        else {
+            res.status(404).send('emp not found')
+        }
+    })
+}
+
+const getAllEmployees = (req,res) =>{
+    service.getAllEmployees(client).then((result) => {
+        if (result) { res.status(200).json({ success: true, data: result }) }
+        else {
+            res.status(404).send('emp not found')
+        }
+    })
+}
 
 const getAllReimbursements = (req, res) => {
     console.log('getting all');
@@ -57,7 +75,9 @@ module.exports = {
     getReimbursementById,
     getReimbursementByStatus,
     getAllPending,
-    getAllResolved
+    getAllResolved,
+    getAllRequestsByEmployee,
+    getAllEmployees
 }
 // const updateAmount = (req,res) => {
 //     // reimubrsement ID
