@@ -1,4 +1,6 @@
 let { reimbursement } = require('../data/reimbursements.js')
+const client = require('../service/connection')
+const service = require('../service/manager')
 
 const getAllReimbursements = (req, res) => {
     console.log('getting all');
@@ -21,10 +23,22 @@ const getReimbursementById = (req, res, next) => {
 
     res.status(200).json({success: true, data: reimbursementsByStatus})
  }
+
+ const postSomething = (req,res) => {
+     const thingToPost = {
+         _id: 1,
+         amount: 100,
+         status: 'Pending'
+     }
+
+     service(client,thingToPost)
+     res.status(200).send('worked maybe?')
+ }
 module.exports = {
     getAllReimbursements,
     getReimbursementById,
-    getReimbursementByStatus
+    getReimbursementByStatus,
+    postSomething
 }
 // const updateAmount = (req,res) => {
 //     // reimubrsement ID
