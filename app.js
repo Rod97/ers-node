@@ -8,6 +8,7 @@ const employee = require('./routes/employee')
 const manager = require('./routes/manager')
 
 app.use(express.static('./public'))
+app.use('/manager', manager)
 
 app.get('/view/pending', (req, res) => {
     res.write(pending.join())
