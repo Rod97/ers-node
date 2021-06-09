@@ -11,6 +11,6 @@ app.use(express.json())
 app.use('/manager', manager)
 
 
-app.listen(5051, () => {
+app.listen(process.env.PORT || 5051, () => {
     console.log("Port 5051");
 })
