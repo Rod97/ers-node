@@ -38,44 +38,6 @@ const getAllResolved = async (client) => {
     }
 }
 
-const getAllByEmployeePending = async (client, employee) => {
-    try {
-        await client.connect()
-        const result = await client.db("requests").collection("pendingRequests")
-            .find({ employee_id: employee }).toArray();
-
-        if (result) {
-            console.log(result);
-            return result;
-        } else {
-            console.log(`No listings found with the name ${employee}`)
-        }
-    } catch (e) {
-        console.log("Error\n" + e);
-    }
-    finally {
-        client.close();
-    }
-}
-const getAllByEmployeeResolved = async (client, employee) => {
-    try {
-        await client.connect()
-        const resultsRejected = await client.db("requests").collection("rejectedRequests")
-            .find({ employee_id: employee }).toArray();
-        const resultsAccepted = await client.db("requests").collection("acceptedRequests")
-            .find({ employee_id: employee }).toArray();
-
-        const result = resultsAccepted.concat(resultsRejected);
-        if (result) {
-            console.log(result);
-            return result;
-        } else {
-            console.log(`No listings found with the name ${employee}`)
-        }
-    } catch (e) {
-        console.log("Error\n" + e);
-    }
-}
 
 const getAllRequestsByEmployee = async (client, employee) => {
     try {
@@ -99,30 +61,59 @@ const getAllRequestsByEmployee = async (client, employee) => {
     }
 }
 
- const getAllEmployees = async (client) => {
-    try{
+const getAllEmployees = async (client) => {
+    try {
         await client.connect()
         const result = await client.db("employee").collection("employee").find().toArray();
         console.log(result);
-        return result;
         if (result.length !== 0) {
             console.log(result);
             return result;
         } else {
-            console.log(`No pending requests`)
+            console.log(`No available employees`)
         }
     } catch (e) {
         console.log("Error\n" + e);
     }
 
- }
+}
+
+const resolveRequest = async (client, request, decision) => {
+    try {
+        await client.connect()
+        const req = await client.db("requests").collection("pendingRequests").findOne({ _id: request });
+        if (req._id) {
+            if (decision === 'approved') {
+                const approved = await client.db("requests").collection("approvedRequests").insertOne(req);
+                if (aproved.insertedCount === 1) {
+                    console.log(`Request ${approved.insertedId} has been approved`);
+                    client.db("requests").collection("pendingRequests").deleteOne({_id:request})
+                    return approved;
+                }
+            }
+            if (decision === 'rejected') {
+                const rejected = await client.db("requests").collection("rejectedRequests").insertOne(req);
+                if (rejected.insertedCount === 1) {
+                    console.log(`Request ${rejected.insertedId} has been rejected`);
+                    client.db("requests").collection("pendingRequests").deleteOne({_id:request})
+                    return rejected;
+                }
+            }
+        }else{
+            console.log("No request with that id was found");
+        }
+    } catch (e) {
+        console.log("Error in resolveRequest\n" + e)
+    }
+}
+
 
 module.exports = {
     getAllPending,
     getAllResolved,
     getAllRequestsByEmployee,
-    getAllEmployees
-    // updateREquestStatus
+    getAllEmployees,
+    resolveRequest
 };
 // const post = async (client, newRequest) => {
 //     try {
@@ -133,4 +124,42 @@ module.exports = {
 //     } finally {
 //         await client.close();
 //     }
+// }
+// const getAllByEmployeeResolved = async (client, employee) => {
+//     try {
+//         await client.connect()
+//         const resultsRejected = await client.db("requests").collection("rejectedRequests")
+//             .find({ employee_id: employee }).toArray();
+//         const resultsAccepted = await client.db("requests").collection("acceptedRequests")
+//             .find({ employee_id: employee }).toArray();
+
+//         const result = resultsAccepted.concat(resultsRejected);
+//         if (result) {
+//             console.log(result);
+//             return result;
+//         } else {
+//             console.log(`No listings found with the name ${employee}`)
+//         }
+//     } catch (e) {
+//         console.log("Error\n" + e);
+//     }
+// }
+// const getAllByEmployeePending = async (client, employee) => {
+// try {
+//     await client.connect()
+//     const result = await client.db("requests").collection("pendingRequests")
+//         .find({ employee_id: employee }).toArray();
+
+//     if (result) {
+//         console.log(result);
+//         return result;
+//     } else {
+//         console.log(`No listings found with the name ${employee}`)
+//     }
+// } catch (e) {
+//     console.log("Error\n" + e);
+// }
+// finally {
+//     client.close();
+// }
 // }
