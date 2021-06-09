@@ -39,12 +39,12 @@ const getAllEmployees = (req, res) => {
 }
 
 const resolveRequest = ((req, res) => {
-    const { request, decision } = req.body
+    const { reimbursement, decision } = req.body
 
-    service.resolveRequest(client, mongo.ObjectID(request), decision).then((result) => {
+    service.resolveRequest(client, mongo.ObjectID(reimbursement), decision).then((result) => {
         if (result) { res.status(200).json({ success: true, data: result }) }
         else {
-            res.status(404).send('Cannot resolve request')
+            res.status(404).send('Cannot resolve reimbursement')
         }
     })
 

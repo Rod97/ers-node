@@ -13,9 +13,6 @@ const getAllPending = async (client) => {
     } catch (e) {
         console.log("Error\n" + e);
     }
-    finally {
-        client.close();
-    }
 }
 
 const getAllResolved = async (client) => {
@@ -78,32 +75,83 @@ const getAllEmployees = async (client) => {
 
 }
 
-const resolveRequest = async (client, request, decision) => {
+const resolveRequest = async (client, reimbursement, decision) => {
     try {
-        await client.connect()
-        const req = await client.db("requests").collection("pendingRequests").findOne({ _id: request });
-        if (req._id) {
-            if (decision === 'approved') {
-                const approved = await client.db("requests").collection("approvedRequests").insertOne(req);
-                if (aproved.insertedCount === 1) {
-                    console.log(`Request ${approved.insertedId} has been approved`);
-                    client.db("requests").collection("pendingRequests").deleteOne({_id:request})
-                    return approved;
+        await client.connect();
+        const pending = client.db("requests").collection("pendingRequests");
+        const rejected = client.db("requests").collection("rejectedRequests");
+        const approved = client.db("requests").collection("approvedRequests");
+
+
+        const session = client.startSession();
+
+        const transactionOptions = {
+            readPreference: 'primary',
+            readConcern: { level: 'local' },
+            writeConcern: { w: 'majority' }
+        };
+
+        try {
+            const transactionResults = await session.withTransaction(async () => {
+                let aborted = false;
+                const reimbursementPending = await pending.findOne({ _id: reimbursement }, { session });
+
+                if (!reimbursementPending) {
+                    await session.abortTransaction();
+                    console.log("Reimbursement is not in pending state");
+                    return;
                 }
-            }
-            if (decision === 'rejected') {
-                const rejected = await client.db("requests").collection("rejectedRequests").insertOne(req);
-                if (rejected.insertedCount === 1) {
-                    console.log(`Request ${rejected.insertedId} has been rejected`);
-                    client.db("requests").collection("pendingRequests").deleteOne({_id:request})
-                    return rejected;
+
+                reimbursementPending.status = decision
+
+                //this might not work
+                const reimbursementInserted = (decision === 'approved'
+                    ? approved.insertOne(reimbursementPending, { session })
+                    : rejected.insertOne(reimbursementPending, { session }))
+                    .then((result) => result).catch((error) => {
+                        console.log("insertion error");
+                        console.log(error);
+                        aborted = true;
+                        return;
+                    });
+                // might not work either
+                
+                if (!aborted) {
+                    const { deletedCount } = await pending.deleteOne({ _id: reimbursement }, { session })
+                        .then((result) => result)
+                        .catch((error) => {
+                            console.log("deletion error");
+                            console.log(error);
+                            aborted = true;
+                            return;
+                        });
+                    if ( deletedCount ) {
+                        return;
+                    } else {
+                        await session.abortTransaction();
+                        console.log("could not delete from pending collection");
+                        return;
+                    }
+                } else {
+                    await session.abortTransaction();
+                    console.log("could not insert record");
+                    return;
                 }
+            }, transactionOptions);
+
+            if (transactionResults) {
+                console.log(`Reimbursement request ${reimbursement} was resolved`);
+                return transactionResults;
+            } else {
+                console.log(`Reimbursement request cannot be resolved`);
             }
-        }else{
-            console.log("No request with that id was found");
+        } catch (e) {
+            console.log(e);
+        } finally {
+            await session.endSession();
         }
     } catch (e) {
-        console.log("Error in resolveRequest\n" + e)
+        console.log("Error before starting transaction:\n" + e);
     }
 }
 
