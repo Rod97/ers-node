@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    getEmployeeHome,
-    getAllByEmployeePending,
-    getAllByEmployeeResolved
+    allByEmployeePending,
+    allByEmployeeResolved,
+    rmbPost
 } = require('../controllers/employee');
 
-router.route('/employee/pending/:employee').get(getAllByEmployeePending)
-router.route('/employee/resolved/:employee').get(getAllByEmployeeResolved)
+router.route('/pending/:employee').get(allByEmployeePending)
+router.route('/resolved/:employee').get(allByEmployeeResolved)
+router.route('/request').post(rmbPost)
 
 module.exports = router
