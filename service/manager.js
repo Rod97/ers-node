@@ -12,7 +12,9 @@ const getAllPending = async (client) => {
         }
     } catch (e) {
         console.log("Error\n" + e);
-    }
+    }finally{
+        return result;
+    }   
 }
 
 const getAllResolved = async (client) => {
@@ -32,7 +34,9 @@ const getAllResolved = async (client) => {
         }
     } catch (e) {
         console.log("Error\n" + e);
-    }
+    }finally{
+        return result;
+    } 
 }
 
 const getAllRequestsByEmployee = async (client, employee) => {
