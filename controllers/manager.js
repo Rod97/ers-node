@@ -1,54 +1,58 @@
-let { reimbursement } = require('../data/reimbursements.js')
+const mongo = require('mongodb')
 const client = require('../service/connection')
 const service = require('../service/manager')
 
-const getAllReimbursements = (req, res) => {
-    console.log('getting all');
-    res.status(200).json({ success: true, data: reimbursement })
-    res.end()
+const getAllPending = (req, res) => {
+    service.getAllPending(client).then((result) => {
+        if (result) { res.status(200).json({ success: true, data: result }) }
+        else {
+            res.status(404).send('no records found')
+        }
+
+    });
+}
+const getAllResolved = (req, res) => {
+    service.getAllResolved(client).then((result) => {
+        if (result) { res.status(200).json({ success: true, data: result }) }
+        else {
+            res.status(404).send('emp not found')
+        }
+    })
+}
+const getAllRequestsByEmployee = (req, res) => {
+    const id = mongo.ObjectID(req.params.id);
+    service.getAllRequestsByEmployee(client, id).then((result) => {
+        if (result) { res.status(200).json({ success: true, data: result }) }
+        else {
+            res.status(404).send('emp not found')
+        }
+    })
 }
 
-const getReimbursementById = (req, res, next) => {
-    const { id } = req.params
-        console.log('getting by id');
-        let reimbursementToGet= reimbursement.find((reimbursement) => {
-            return reimbursement.id === Number(id)
-        })
-  
-    res.status(200).send({ data: reimbursementToGet });
+const getAllEmployees = (req, res) => {
+    service.getAllEmployees(client).then((result) => {
+        if (result) { res.status(200).json({ success: true, data: result }) }
+        else {
+            res.status(404).send('emp not found')
+        }
+    })
 }
 
- const getReimbursementByStatus = (req, res) => {
-    const reimbursementsByStatus = reimbursement.filter((reimbursement) => reimbursement.status.toLowerCase() === req.query.status.toLowerCase())
+const resolveRequest = ((req, res) => {
+    const { reimbursement, decision } = req.body
 
-    res.status(200).json({success: true, data: reimbursementsByStatus})
- }
+    service.resolveRequest(client, mongo.ObjectID(reimbursement), decision).then((result) => {
+        if (result) { res.status(200).json({ success: true, data: result }) }
+        else {
+            res.status(404).send('Cannot resolve reimbursement')
+        }
+    })
 
- const postSomething = (req,res) => {
-     const thingToPost = {
-         _id: 1,
-         amount: 100,
-         status: 'Pending'
-     }
-
-     service(client,thingToPost)
-     res.status(200).send('worked maybe?')
- }
+})
 module.exports = {
-    getAllReimbursements,
-    getReimbursementById,
-    getReimbursementByStatus,
-    postSomething
+    getAllPending,
+    getAllResolved,
+    getAllRequestsByEmployee,
+    getAllEmployees,
+    resolveRequest
 }
-// const updateAmount = (req,res) => {
-//     // reimubrsement ID
-//     const { id } = req.params;
-//     const { amount } = req.params;
-
-//     const reimbursementToUpdate = reimbursement.map((reimbursement) => {
-//         if(reimbursement.id === Number(id)){
-//             reimbursement.amount = Number(amount)
-//         }
-//         return reimbursement
-//     })
-// }

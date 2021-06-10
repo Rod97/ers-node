@@ -3,15 +3,19 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    getAllReimbursements,
-    getReimbursementById,
-    getReimbursementByStatus,
-    postSomething
+
+    getAllPending,
+    getAllResolved,
+    getAllRequestsByEmployee,
+    getAllEmployees,
+    resolveRequest
 } = require('../controllers/manager')
 
-router.route('/').get(getAllReimbursements)
-router.route('/requests/:id').get(getReimbursementById, getReimbursementById)
-router.route('/requests').get(getReimbursementByStatus)
-router.route('/post').post(postSomething)
+router.route('/pending').get(getAllPending)
+router.route('/resolved').get(getAllResolved)
+router.route('/employee/:id').get(getAllRequestsByEmployee)
+router.route('/employees').get(getAllEmployees)
+router.route('/manage').put(resolveRequest)
+
 
 module.exports = router
