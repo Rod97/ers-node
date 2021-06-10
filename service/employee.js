@@ -20,7 +20,7 @@ const getAllByEmployeeResolved = async (client, employee) => {
         await client.connect()
         const resultsRejected = await client.db("requests").collection("rejectedRequests")
             .find({ employee_id: employee }).toArray();
-        const resultsAccepted = await client.db("requests").collection("acceptedRequests")
+        const resultsAccepted = await client.db("requests").collection("approvedRequests")
             .find({ employee_id: employee }).toArray();
 
         const result = resultsAccepted.concat(resultsRejected);
