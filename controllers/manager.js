@@ -56,15 +56,3 @@ module.exports = {
     getAllEmployees,
     resolveRequest
 }
-// const updateAmount = (req,res) => {
-//     // reimubrsement ID
-//     const { id } = req.params;
-//     const { amount } = req.params;
-
-//     const reimbursementToUpdate = reimbursement.map((reimbursement) => {
-//         if(reimbursement.id === Number(id)){
-//             reimbursement.amount = Number(amount)
-//         }
-//         return reimbursement
-//     })
-// }

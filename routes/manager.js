@@ -11,11 +11,11 @@ const {
     resolveRequest
 } = require('../controllers/manager')
 
-router.route('/requests/pending').get(getAllPending)
-router.route('/requests/resolved').get(getAllResolved)
-router.route('/requests/employee/:id').get(getAllRequestsByEmployee)
+router.route('/pending').get(getAllPending)
+router.route('/resolved').get(getAllResolved)
+router.route('/employee/:id').get(getAllRequestsByEmployee)
 router.route('/employees').get(getAllEmployees)
-router.route('/requests/manage').put(resolveRequest)
+router.route('/manage').put(resolveRequest)
 
 
 module.exports = router

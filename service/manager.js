@@ -131,7 +131,7 @@ const resolveRequest = async (client, reimbursement, decision) => {
                         await session.abortTransaction();
                         console.log("could not delete from pending collection");
                         return;
-                    }
+                    } 
                 } else {
                     await session.abortTransaction();
                     console.log("could not insert record");
