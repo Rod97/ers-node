@@ -4,9 +4,8 @@
   "description": "",
   "main": "app.js",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
-    "lodash": "^4.17.21",
-    "lodash.where": "^3.1.0",
     "mongodb": "^3.6.9"
   },
   "devDependencies": {

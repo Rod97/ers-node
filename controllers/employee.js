@@ -1,4 +1,3 @@
-let { reimbursement } = require('../data/reimbursements.js')
 const mongo = require('mongodb')
 const client = require('../service/connection')
 const service = require('../service/employee')
