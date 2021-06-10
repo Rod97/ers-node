@@ -40,6 +40,7 @@ const getAllResolved = async (client) => {
 }
 
 const getAllRequestsByEmployee = async (client, employee) => {
+    let result = undefined;
     try {
         await client.connect()
         const resultsPending = await client.db("requests").collection("pendingRequests")
@@ -49,8 +50,8 @@ const getAllRequestsByEmployee = async (client, employee) => {
         const resultsAccepted = await client.db("requests").collection("approvedRequests")
             .find({ employee_id: employee }).toArray();
         const resultsResolved = resultsAccepted.concat(resultsRejected);
-        const result = resultsResolved.concat(resultsPending);
-        if (result) {
+        result = resultsResolved.concat(resultsPending);
+        if (result.length !== 0) {
             console.log(result);
             return result;
         } else {
