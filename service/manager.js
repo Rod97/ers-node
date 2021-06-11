@@ -1,7 +1,6 @@
 const getAllPending = async (client) => {
     var result = undefined;
     try {
-        await client.connect()
         result = await client.db("requests").collection("pendingRequests")
             .find().toArray();
 
@@ -20,7 +19,6 @@ const getAllPending = async (client) => {
 const getAllResolved = async (client) => {
     var result = undefined;
     try {
-        await client.connect()
         const resultsRejected = await client.db("requests").collection("rejectedRequests")
             .find().toArray();
         const resultsAccepted = await client.db("requests").collection("approvedRequests")
@@ -42,7 +40,6 @@ const getAllResolved = async (client) => {
 const getAllRequestsByEmployee = async (client, employee) => {
     let result = undefined;
     try {
-        await client.connect()
         const resultsPending = await client.db("requests").collection("pendingRequests")
             .find({ employee_id: employee }).toArray();
         const resultsRejected = await client.db("requests").collection("rejectedRequests")
@@ -64,7 +61,6 @@ const getAllRequestsByEmployee = async (client, employee) => {
 
 const getAllEmployees = async (client) => {
     try {
-        await client.connect()
         const result = await client.db("employee").collection("employee").find().toArray();
         if (result.length !== 0) {
             return result;
@@ -78,7 +74,6 @@ const getAllEmployees = async (client) => {
 
 const resolveRequest = async (client, reimbursement, decision) => {
     try {
-        await client.connect();
         const pending = client.db("requests").collection("pendingRequests");
         const rejected = client.db("requests").collection("rejectedRequests");
         const approved = client.db("requests").collection("approvedRequests");
