@@ -66,9 +66,7 @@ const getAllEmployees = async (client) => {
     try {
         await client.connect()
         const result = await client.db("employee").collection("employee").find().toArray();
-        console.log(result);
         if (result.length !== 0) {
-            console.log(result);
             return result;
         } else {
             console.log(`No available employees`)

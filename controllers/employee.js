@@ -31,9 +31,7 @@ const rmbPost = (req, res) => {
         employee_id,
         status
     } = req.body
-
-    employee_id = mongo.ObjectID(employee_id)
-    newRequest = {amount, reason, employee_id, status}
+    newRequest = {amount, reason, employee_id:mongo.ObjectID(employee_id), status}
     service.post(client, newRequest).then((result) => {
         if (result) { res.status(200).json({ success: true, data: result }) }
         else {

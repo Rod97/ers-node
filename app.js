@@ -12,7 +12,7 @@ app.use(express.json())
 
 app.use('/employee', employee)
 app.use('/manager', manager)
-
-app.listen(process.env.PORT || 5051, () => {
-    console.log("Port 5051");
+const port = process.env.PORT || 5051;
+app.listen(port, () => {
+    console.log(port);
 })
