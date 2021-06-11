@@ -101,7 +101,7 @@ const resolveRequest = async (client, reimbursement, decision) => {
                 reimbursementPending.status = decision
 
                 //this might not work
-                const reimbursementInserted = (decision === 'approved'
+                const reimbursementInserted = (decision === 'Accepted'
                     ? approved.insertOne(reimbursementPending, { session })
                     : rejected.insertOne(reimbursementPending, { session }))
                     .then((result) => result).catch((error) => {
