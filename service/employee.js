@@ -1,6 +1,5 @@
 const getAllByEmployeePending = async (client, employee) => {
     try {
-        await client.connect()
         const result = await client.db("requests").collection("pendingRequests")
             .find({ employee_id: employee }).toArray();
 
@@ -17,7 +16,6 @@ const getAllByEmployeePending = async (client, employee) => {
 
 const getAllByEmployeeResolved = async (client, employee) => {
     try {
-        await client.connect()
         const resultsRejected = await client.db("requests").collection("rejectedRequests")
             .find({ employee_id: employee }).toArray();
         const resultsAccepted = await client.db("requests").collection("approvedRequests")
@@ -37,7 +35,6 @@ const getAllByEmployeeResolved = async (client, employee) => {
 
 const post = async (client, newRequest) => {
     try {
-         await client.connect();
          console.log("attempting to insert");
          const result = await client.db("requests").collection("pendingRequests").insertOne(newRequest);
          return result;
