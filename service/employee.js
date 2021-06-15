@@ -1,7 +1,7 @@
 const getAllByEmployeePending = async (client, employee) => {
     try {
-        const result = await client.db("requests").collection("pendingRequests")
-            .find({ employee_id: employee }).toArray();
+        const result = await client.db("ers").collection("requests")
+            .find({ employee_id: employee, status:'Pending' }).toArray();
 
         if (result) {
             console.log(result);
@@ -16,12 +16,8 @@ const getAllByEmployeePending = async (client, employee) => {
 
 const getAllByEmployeeResolved = async (client, employee) => {
     try {
-        const resultsRejected = await client.db("requests").collection("rejectedRequests")
-            .find({ employee_id: employee }).toArray();
-        const resultsAccepted = await client.db("requests").collection("approvedRequests")
-            .find({ employee_id: employee }).toArray();
-
-        const result = resultsAccepted.concat(resultsRejected);
+        const result = await client.db("ers").collection("requests")
+            .find({ employee_id: employee, status: {'$ne':'Pending'} }).toArray();
         if (result) {
             console.log(result);
             return result;
@@ -36,7 +32,7 @@ const getAllByEmployeeResolved = async (client, employee) => {
 const post = async (client, newRequest) => {
     try {
          console.log("attempting to insert");
-         const result = await client.db("requests").collection("pendingRequests").insertOne(newRequest);
+         const result = await client.db("ers").collection("requests").insertOne(newRequest);
          return result;
     } catch (e) {
          console.log(e);

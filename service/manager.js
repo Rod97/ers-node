@@ -1,8 +1,8 @@
 const getAllPending = async (client) => {
     var result = undefined;
     try {
-        result = await client.db("requests").collection("pendingRequests")
-            .find().toArray();
+        result = await client.db("ers").collection("requests")
+            .find({ status: 'Pending' }).toArray();
 
         if (result.length !== 0) {
             console.log(result);
@@ -11,43 +11,34 @@ const getAllPending = async (client) => {
         }
     } catch (e) {
         console.log("Error\n" + e);
-    }finally{
+    } finally {
         return result;
-    }   
+    }
 }
 
 const getAllResolved = async (client) => {
     var result = undefined;
     try {
-        const resultsRejected = await client.db("requests").collection("rejectedRequests")
-            .find().toArray();
-        const resultsAccepted = await client.db("requests").collection("approvedRequests")
-            .find().toArray();
-
-        result = resultsAccepted.concat(resultsRejected);
+        result = await client.db("ers").collection("requests")
+            .find({ status: { '$ne': 'Pending' } }).toArray();
         if (result.length !== 0) {
-            console.log(result);
+            console.log("query successful");
         } else {
             console.log(`No Resolved Requests`)
         }
     } catch (e) {
         console.log("Error\n" + e);
-    }finally{
+    } finally {
         return result;
-    } 
+    }
 }
 
 const getAllRequestsByEmployee = async (client, employee) => {
     let result = undefined;
     try {
-        const resultsPending = await client.db("requests").collection("pendingRequests")
+        result = await client.db("ers").collection("requests")
             .find({ employee_id: employee }).toArray();
-        const resultsRejected = await client.db("requests").collection("rejectedRequests")
-            .find({ employee_id: employee }).toArray();
-        const resultsAccepted = await client.db("requests").collection("approvedRequests")
-            .find({ employee_id: employee }).toArray();
-        const resultsResolved = resultsAccepted.concat(resultsRejected);
-        result = resultsResolved.concat(resultsPending);
+
         if (result.length !== 0) {
             console.log(result);
             return result;
@@ -61,7 +52,7 @@ const getAllRequestsByEmployee = async (client, employee) => {
 
 const getAllEmployees = async (client) => {
     try {
-        const result = await client.db("employee").collection("employee").find().toArray();
+        const result = await client.db("ers").collection("employee").find({ manager: false }).toArray();
         if (result.length !== 0) {
             return result;
         } else {
@@ -74,10 +65,7 @@ const getAllEmployees = async (client) => {
 
 const resolveRequest = async (client, reimbursement, decision) => {
     try {
-        const pending = client.db("requests").collection("pendingRequests");
-        const rejected = client.db("requests").collection("rejectedRequests");
-        const approved = client.db("requests").collection("approvedRequests");
-
+        const requests = client.db("ers").collection("requests");
 
         const session = client.startSession();
 
@@ -89,52 +77,22 @@ const resolveRequest = async (client, reimbursement, decision) => {
 
         try {
             const transactionResults = await session.withTransaction(async () => {
-                let aborted = false;
-                const reimbursementPending = await pending.findOne({ _id: reimbursement }, { session });
-
+                const reimbursementPending = await requests.findOne({ _id: reimbursement, status: 'Pending' }, { session });
                 if (!reimbursementPending) {
                     await session.abortTransaction();
                     console.log("Reimbursement is not in pending state");
                     return;
                 }
-
+                //update status
                 reimbursementPending.status = decision
-
-                //this might not work
-                const reimbursementInserted = (decision === 'Accepted'
-                    ? approved.insertOne(reimbursementPending, { session })
-                    : rejected.insertOne(reimbursementPending, { session }))
-                    .then((result) => result).catch((error) => {
-                        console.log("insertion error");
-                        console.log(error);
-                        aborted = true;
-                        return;
-                    });
-                // might not work either
-                
-                if (!aborted) {
-                    const { deletedCount } = await pending.deleteOne({ _id: reimbursement }, { session })
-                        .then((result) => result)
-                        .catch((error) => {
-                            console.log("deletion error");
-                            console.log(error);
-                            aborted = true;
-                            return;
-                        });
-                    if ( deletedCount ) {
-                        return;
-                    } else {
-                        await session.abortTransaction();
-                        console.log("could not delete from pending collection");
-                        return;
-                    } 
-                } else {
+                //replace in db
+                const updatedRequest = await requests.replaceOne({ _id: reimbursement, status: 'Pending' }, reimbursementPending, { upsert: false, session })
+                if (updatedRequest.matchedCount !== 1 || updatedRequest.modifiedCount !== 1) {
                     await session.abortTransaction();
-                    console.log("could not insert record");
-                    return;
+                    console.log("Something went wrong updating the database");
+                    return updatedRequest;
                 }
             }, transactionOptions);
-
             if (transactionResults) {
                 console.log(`Reimbursement request ${reimbursement} was resolved`);
                 return transactionResults;
